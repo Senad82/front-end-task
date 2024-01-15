@@ -1,0 +1,110 @@
+import { useState } from "react";
+import { loginUser, setUserToLocalStorage } from "../../services/auth.service";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { saveUser } from "../../redux/user.slicer";
+import { jwtDecode } from "jwt-decode";
+
+const LoginSectionComponent = () => {
+  const [signInObj, setSignInObj] = useState({
+    username: "",
+    password: "",
+  });
+
+  const [validationMsg, setValidationMsg] = useState("");
+  const [errMsg, setErrMsg] = useState("");
+
+  const handleSignInObj = (e) => {
+    let newStateObj = signInObj;
+    newStateObj[e.target.name] = e.target.value;
+    setSignInObj(newStateObj);
+  };
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const onLoginSubmit = () => {
+    if (!signInObj.username || !signInObj.password) {
+      return setValidationMsg(
+        `Required field: ${!signInObj.username ? "username" : "password"}`
+      );
+    }
+    if (signInObj.username.length < 3 || signInObj.username.length > 20) {
+      return setValidationMsg(`Username: required, min: 3, max: 20`);
+    }
+    if (signInObj.password.length < 6 || signInObj.password.length > 20) {
+      return setValidationMsg(`Password: required, min: 6, max: 20`);
+    } else {
+      setValidationMsg("");
+      loginUser(signInObj)
+        .then((res) => {
+          const token = res.data.jwt;
+          const decoded = jwtDecode(token);
+          console.log("response...", res);
+          if (res.status === 401) {
+            setErrMsg();
+            console.log(res.status);
+            return;
+          } else {
+            setUserToLocalStorage(res.data);
+            dispatch(saveUser(decoded));
+            navigate("/account");
+          }
+        })
+        .catch((err) => {
+          console.log("error...", err);
+          if (err) {
+            setErrMsg("User don't exist! Try again.");
+          }
+        })
+        .finally(() => {});
+    }
+  };
+
+  return (
+    <>
+      <h1 className="page-title text-center">Login to your account</h1>
+      <div className="form-wrapper my-4">
+        <div className="login-form form-control w-50 p-3">
+          <div className="mb-3">
+            <input
+              type="text"
+              className="form-control"
+              id="username"
+              name="username"
+              onChange={(e) => handleSignInObj(e)}
+              placeholder="Username"
+            />
+          </div>
+          <div className=" mb-3">
+            <input
+              type="password"
+              className="form-control"
+              name="password"
+              id="password"
+              onChange={(e) => handleSignInObj(e)}
+              placeholder="Password"
+            />
+          </div>
+
+          {validationMsg ? (
+            <p className="alert alert-danger">{validationMsg}</p>
+          ) : null}
+
+          {errMsg ? <p className="alert alert-danger">{errMsg}</p> : null}
+
+          <button
+            onClick={onLoginSubmit}
+            className="btn btn-primary form-control"
+          >
+            Login
+          </button>
+          <Link to="/register">Don't have account? Register</Link>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default LoginSectionComponent;
