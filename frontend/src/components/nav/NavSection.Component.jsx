@@ -1,8 +1,9 @@
-import { React, useEffect} from "react";
+import { React, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
-import { removeUserFromLocalSto } from "../../services/auth.service";
+import { removeUserFromLocalStorage } from "../../services/auth.service";
 import { removeUser } from "../../redux/user.slicer";
+import NavbarLinkComponent from "./components/NavbarLink.component";
 
 const NavSectionComponent = () => {
   const userStore = useSelector((state) => state.userStore.user);
@@ -12,9 +13,8 @@ const NavSectionComponent = () => {
     console.log(userStore);
   }, [userStore]);
 
-
   const onLogOut = () => {
-    removeUserFromLocalSto()
+    removeUserFromLocalStorage()
     dispatch(removeUser())
   }
 
@@ -36,12 +36,10 @@ const NavSectionComponent = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <NavLink className="nav-link" to="/">
-                  Home
-                </NavLink>
+                <NavbarLinkComponent />
               </li>
               <li className="nav-item">
-                {!userStore?.username ? (
+                {!userStore?.sub ? (
                   <NavLink className="nav-link" to="/register">
                     Register
                   </NavLink>
@@ -52,14 +50,12 @@ const NavSectionComponent = () => {
                 )}
               </li>
               <li className="nav-item">
-                {!userStore?.username ? (
+                {!userStore?.sub ? (
                   <NavLink className="nav-link" to="/login">
                     Login
                   </NavLink>
                 ) : (
-                  <NavLink className="nav-link" onClick={(e) => onLogOut()}>
-                    Logout
-                  </NavLink>
+                  <NavLink className="nav-link" onClick={(e) => onLogOut()}>Logout</NavLink>
                 )}
               </li>
             </ul>

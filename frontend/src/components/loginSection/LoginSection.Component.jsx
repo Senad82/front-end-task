@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 
 const LoginSectionComponent = () => {
   const [signInObj, setSignInObj] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -25,29 +25,29 @@ const LoginSectionComponent = () => {
   const dispatch = useDispatch();
 
   const onLoginSubmit = () => {
-    if (!signInObj.username || !signInObj.password) {
+    if (!signInObj.email || !signInObj.email) {
       return setValidationMsg(
-        `Required field: ${!signInObj.username ? "username" : "password"}`
+        `Required field: ${!signInObj.email ? "email" : "password"}`
       );
     }
-    if (signInObj.username.length < 3 || signInObj.username.length > 20) {
-      return setValidationMsg(`Username: required, min: 3, max: 20`);
+    if (signInObj.email.length < 3 || signInObj.email.length > 20) {
+      return setValidationMsg(`email: required, min: 3, max: 20`);
     }
-    if (signInObj.password.length < 6 || signInObj.password.length > 20) {
+    if (signInObj.password.length < 5 || signInObj.password.length > 20) {
       return setValidationMsg(`Password: required, min: 6, max: 20`);
     } else {
       setValidationMsg("");
       loginUser(signInObj)
         .then((res) => {
-          const token = res.data.jwt;
+          const token = res.data.access_token;
           const decoded = jwtDecode(token);
           console.log("response...", res);
           if (res.status === 401) {
-            setErrMsg();
+            setErrMsg(res.data);
             console.log(res.status);
             return;
           } else {
-            setUserToLocalStorage(res.data);
+            setUserToLocalStorage(decoded);
             dispatch(saveUser(decoded));
             navigate("/account");
           }
@@ -69,12 +69,12 @@ const LoginSectionComponent = () => {
         <div className="login-form form-control w-50 p-3">
           <div className="mb-3">
             <input
-              type="text"
+              type="email"
               className="form-control"
-              id="username"
-              name="username"
+              id="email"
+              name="email"
               onChange={(e) => handleSignInObj(e)}
-              placeholder="Username"
+              placeholder="email"
             />
           </div>
           <div className=" mb-3">
