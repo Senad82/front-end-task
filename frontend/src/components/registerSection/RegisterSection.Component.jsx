@@ -1,133 +1,159 @@
-import { Link } from "react-router-dom";
+import { ErrorMessage, Field, Formik } from "formik";
+import { Form } from "formik";
+import * as Yup from "yup";
+import { registerUser } from "../../services/auth.service";
+import DatePicker from "react-datepicker";
+import { useNavigate } from "react-router-dom";
+
+const RegisterSchema = Yup.object({
+  username: Yup.string().required("Username is required"),
+  password: Yup.string().required("Password is required"),
+  repeatPassword: Yup.string().required("Repeat password is required"),
+  subscribeToNewsLetter: Yup.boolean(),
+  gender: Yup.string().required("Gender is required"),
+  status: Yup.boolean().required("Status is Required"),
+  yearOfBirth: Yup.date().min(new Date().getFullYear()),
+});
 
 const RegisterSectionComponent = () => {
+  const navigate = useNavigate();
 
+  let date = new Date().getFullYear();
 
   return (
-    <>
-      <h1 className="page-title text-center">Create your account</h1>
-      <div className="form-wrapper my-4">
-        <div className="login-form form-control w-50 p-3">
-          <div className="mb-3">
-            <input
-              type="text"
-              className="form-control"
-              id="username"
-              name="username"
-              // onChange={(e) => handleSignInObj(e)}
-              placeholder="Username"
-            />
-          </div>
-          <div className=" mb-3">
-            <input
-              type="password"
-              className="form-control"
-              name="password"
-              id="password"
-              // onChange={(e) => handleSignInObj(e)}
-              placeholder="Password"
-            />
-          </div>
-          <div className=" mb-3">
-            <input
-              type="password"
-              className="form-control"
-              name="repeatPassword"
-              id="repeatPassword"
-              // onChange={(e) => handleSignInObj(e)}
-              placeholder="Repeat password"
-            />
-          </div>
-          <div className=" mb-3">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              name="newsletter"
-              id="newsletter"
-              // onChange={(e) => handleSignInObj(e)}
-              value={false}
-            />
-            <label className="form-check-label ms-3" htmlFor="newsletter">
-              Subscribe to newsletter
-            </label>
-          </div>
+    <div className="row">
+      <Formik
+        initialValues={{
+          username: "",
+          password: "",
+          repeatPassword: "",
+          subscribeToNewsLetter: false,
+          gender: "",
+          status: false,
+          yearOfBirth: date,
+        }}
+        validationSchema={RegisterSchema}
+        onSubmit={(values) => {
+          console.log(values);
+          registerUser(values)
+            .then((res) => {
+              console.log("Response register...", res);
+              alert("Successfully registered. Redirection to account page.");
+              navigate("/");
+            })
+            .catch((err) => {
+              console.log("Error...", err);
+            });
+        }}
+      >
+        {({ error, touched }) => {
+          return (
+            <Form className="form-wrapper mt-3">
+              <div className="col-3">
+                <Field
+                  className="form-control"
+                  name="username"
+                  type="text"
+                  placeholder="Username"
+                />
+                <ErrorMessage name="username" />
 
-          {/* Radio selection */}
-          <div className="form-check form-check-inline mb-3">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="gender"
-              id="male"
-              value="male"
-            />
-            <label className="form-check-label" htmlFor="male">
-              Male
-            </label>
-          </div>
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="gender"
-              id="female"
-              value="female"
-            />
-            <label className="form-check-label" htmlFor="female">
-              Female
-            </label>
-          </div>
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="gender"
-              id="other"
-              value="other"
-            />
-            <label className="form-check-label" htmlFor="other">
-              Other
-            </label>
-          </div>
+                <Field
+                  className="form-control"
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                />
+                <ErrorMessage name="password" />
 
-          {/* Dropdown selection*/}
-          <label className="form-control">
-            Status:
-            <select className="form-select" >
-              <option value="grapefruit">Active</option>
-              <option value="lime">Inactive</option>
-            </select>
-          </label>
-          <label className="form-check-label ms-2" htmlFor="dateOfBirth">
-            Year of Birth
-          </label>
-          <div className=" mb-3">
-            <input
-              type="date"
-              className="form-control"
-              name="dateOfBirth"
-              id="dateOfBirth"
-              // onChange={(e) => handleSignInObj(e)}
-              placeholder="Year of birth"
-            />
-          </div>
+                <Field
+                  className="form-control"
+                  name="repeatPassword"
+                  type="password"
+                  placeholder="Repeat Password"
+                />
+                <ErrorMessage name="repeatPassword" />
 
-          {/* {validationMsg ? (
-            <p className="alert alert-danger">{validationMsg}</p>
-          ) : null} */}
+                <div className="form-control">
+                  <div
+                    className="ms-4"
+                    role="group"
+                    aria-labelledby="checkbox-group"
+                  >
+                    <Field type="checkbox" name="subscribeToNewsLetter" />
+                    <label className="ms-3">Subscribe To News Letter</label>
+                  </div>
+                </div>
 
-          {/* {errMsg ? <p className="alert alert-danger">{errMsg}</p> : null} */}
+                <div className="custom-control custom-radio form-control">
+                  <div
+                    role="group"
+                    aria-labelledby="my-radio-group"
+                    className="ms-4"
+                  >
+                    <Field id="male" type="radio" name="gender" value="Male" />
+                    <label className="ms-2" htmlFor="male">
+                      Male
+                    </label>
+                    <Field
+                      id="female"
+                      type="radio"
+                      name="gender"
+                      value="Female"
+                      className="ms-4"
+                    />
+                    <label htmlFor="female" className="ms-2">
+                      Female
+                    </label>
+                    <Field
+                      id="other"
+                      type="radio"
+                      name="gender"
+                      value="Other"
+                      className="ms-4"
+                    />
+                    <label htmlFor="other" className="ms-2">
+                      Other
+                    </label>
+                  </div>
+                  <ErrorMessage name="gender" />
+                </div>
 
-          <button
-            // onClick={onLoginSubmit}
-            className="btn btn-primary form-control"
-          >
-            Login
-          </button>
-          <Link to="/login">Have account? Login</Link>
-        </div>
-      </div>
-    </>
+                <Field as="select" name="status" className="form-select">
+                  <option value={true}>Active</option>
+                  <option value={false}>Inactive</option>
+                </Field>
+                <ErrorMessage name="status" />
+
+                <div className="form-control text-center">
+                  <label className="ms-3" htmlFor="yearOfBirth">
+                    Date of birth:{" "}
+                  </label>
+                  <Field className="ms-3" name="yearOfBirth">
+                    {({ field, form }) => (
+                      <DatePicker
+                        id="yearOfBirth"
+                        {...field}
+                        selected={field.value}
+                        onChange={(date) =>
+                          form.setFieldValue(field.name, date)
+                        }
+                        placeholder="Date"
+                      />
+                    )}
+                  </Field>
+                  <ErrorMessage name="date" component="div" />
+                </div>
+
+                <button className="btn btn-primary form-control" type="submit">
+                  Register
+                </button>
+              </div>
+            </Form>
+          );
+        }}
+      </Formik>
+    </div>
   );
 };
 

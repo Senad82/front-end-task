@@ -3,7 +3,7 @@ import RegisterSectionComponent from "../components/registerSection/RegisterSect
 const RegisterPageComponent = () => {
   return (
     <div className="container">
-      <RegisterSectionComponent />;
+      <RegisterSectionComponent />
     </div>
   );
 };

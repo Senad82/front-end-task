@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 
 const LoginSectionComponent = () => {
   const [signInObj, setSignInObj] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -25,12 +25,12 @@ const LoginSectionComponent = () => {
   const dispatch = useDispatch();
 
   const onLoginSubmit = () => {
-    if (!signInObj.email || !signInObj.email) {
+    if (!signInObj.username || !signInObj.username) {
       return setValidationMsg(
-        `Required field: ${!signInObj.email ? "email" : "password"}`
+        `Required field: ${!signInObj.username ? "username" : "password"}`
       );
     }
-    if (signInObj.email.length < 3 || signInObj.email.length > 20) {
+    if (signInObj.username.length < 3 || signInObj.username.length > 20) {
       return setValidationMsg(`email: required, min: 3, max: 20`);
     }
     if (signInObj.password.length < 5 || signInObj.password.length > 20) {
@@ -39,7 +39,7 @@ const LoginSectionComponent = () => {
       setValidationMsg("");
       loginUser(signInObj)
         .then((res) => {
-          const token = res.data.access_token;
+          const token = res.data.jwt;
           const decoded = jwtDecode(token);
           console.log("response...", res);
           if (res.status === 401) {
@@ -49,7 +49,7 @@ const LoginSectionComponent = () => {
           } else {
             setUserToLocalStorage(decoded);
             dispatch(saveUser(decoded));
-            navigate("/account");
+            navigate("/");
           }
         })
         .catch((err) => {
@@ -69,12 +69,12 @@ const LoginSectionComponent = () => {
         <div className="login-form form-control w-50 p-3">
           <div className="mb-3">
             <input
-              type="email"
+              type="text"
               className="form-control"
-              id="email"
-              name="email"
+              id="username"
+              name="username"
               onChange={(e) => handleSignInObj(e)}
-              placeholder="email"
+              placeholder="Username"
             />
           </div>
           <div className=" mb-3">
